@@ -32,14 +32,6 @@ const MainNavigation: React.FC = (props) => {
                 World
               </NavLink>
             </li>
-            <li>
-              <NavLink
-                to="/settings"
-                className={({ isActive }) => (isActive && classes.active) || ""}
-              >
-                Settings
-              </NavLink>
-            </li>
           </ul>
         </nav>
       </div>
