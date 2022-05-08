@@ -8,8 +8,8 @@ function Copyright() {
   return (
     <Typography variant="body2" color="text.secondary">
       {"Copyright © "}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
+      <Link color="inherit" href="https://github.com/dcphantom">
+        dcphantom
       </Link>{" "}
       {new Date().getFullYear()}
       {"."}
@@ -36,7 +36,7 @@ const StickyFooter: React.FC = () => {
       }}
     >
       <Container>
-        <Typography variant="body1">
+        <Typography variant="caption">
           <Link
             sx={{ textDecoration: "none" }}
             color="text.secondary"

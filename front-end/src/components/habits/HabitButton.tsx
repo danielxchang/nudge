@@ -3,22 +3,13 @@ import { useNavigate } from "react-router-dom";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
-import Avatar from "@mui/material/Avatar";
-import { deepOrange } from "@mui/material/colors";
+import Avatar, { AvatarType } from "../UI/Avatar";
 
-import { getInitials } from "../../util/helpers";
-
-interface HabitItem {
-  id: string;
-  dateStarted: string;
-  partner: string;
-  description: string;
-  count: number;
-}
+import HabitItem from "../../models/habit";
 
 interface Props {
   habit: HabitItem;
-  user: { id: string; initials: string };
+  user: { id: string; name: string };
 }
 
 const Habit: React.FC<Props> = (props) => {
@@ -26,14 +17,11 @@ const Habit: React.FC<Props> = (props) => {
 
   return (
     <ListItemButton
-      key={props.habit.id}
       divider
       onClick={() => navigate(`/${props.user.id}/habits/${props.habit.id}`)}
     >
       <ListItemAvatar>
-        <Avatar sx={{ bgcolor: deepOrange[500] }} variant="rounded">
-          {props.user.initials}
-        </Avatar>
+        <Avatar type={AvatarType.initials} name={props.user.name} />
       </ListItemAvatar>
       <ListItemText
         primary={props.habit.description}
@@ -41,9 +29,7 @@ const Habit: React.FC<Props> = (props) => {
         sx={{ textAlign: "center" }}
       />
       <ListItemAvatar>
-        <Avatar sx={{ bgcolor: deepOrange[500] }} variant="rounded">
-          {getInitials(props.habit.partner)}
-        </Avatar>
+        <Avatar type={AvatarType.initials} name={props.habit.partner} />
       </ListItemAvatar>
     </ListItemButton>
   );

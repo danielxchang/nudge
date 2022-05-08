@@ -1,47 +1,23 @@
 import React from "react";
 import List from "@mui/material/List";
 
-import Habit from "./Habit";
-import { getInitials } from "../../util/helpers";
+import HabitButton from "./HabitButton";
+import { DUMMY_USER, DUMMY_HABITS } from "../../util/dummy";
 
-interface Habit {
-  id: string;
-  dateStarted: string;
-  partner: string;
-  description: string;
-  count: number;
-}
-
-const DUMMY_USER = { id: "u1", name: "Daniel Chang" };
-const DUMMY_HABITS: Habit[] = [
-  {
-    id: "h1",
-    dateStarted: new Date().toLocaleDateString("en-US"),
-    partner: "Lisa Ann",
-    description: "Running",
-    count: 1,
-  },
-  {
-    id: "h2",
-    dateStarted: new Date().toLocaleDateString("en-US"),
-    partner: "Eva Notty",
-    description: "Reading",
-    count: 3,
-  },
-];
-
-const HabitsList: React.FC = (props) => {
-  const userInitials = getInitials(DUMMY_USER.name);
-  const user = { id: DUMMY_USER.id, initials: userInitials };
-  const habitItems = DUMMY_HABITS.map((h) => <Habit user={user} habit={h} />);
+const HabitsList: React.FC = () => {
+  const user = { id: DUMMY_USER.id, name: DUMMY_USER.name };
+  const habitItems = DUMMY_HABITS.map((h) => (
+    <HabitButton user={user} habit={h} key={h.id} />
+  ));
 
   return (
     <List
       sx={{
-        width: "100%",
+        width: "50%",
         bgcolor: "background.paper",
-        maxHeight: "50%",
+        maxHeight: "65vh",
         overflow: "auto",
+        margin: "auto",
       }}
     >
       {habitItems}
