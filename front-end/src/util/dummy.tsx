@@ -1,4 +1,4 @@
-import HabitItem from "../models/habit";
+import HabitItem, { HabitOption } from "../models/habit";
 
 const populateDates = (startDate: Date) => {
   const date = new Date(startDate.getTime());
@@ -20,7 +20,7 @@ const populateDates = (startDate: Date) => {
 
 const d1 = new Date("2022-05-01");
 
-export const DUMMY_USER = { id: "u1", name: "Daniel Chang" };
+export const DUMMY_USER = { id: "u1", name: "Daniel Chang", loggedIn: true };
 
 export const DUMMY_HABITS: HabitItem[] = [
   {
@@ -39,4 +39,10 @@ export const DUMMY_HABITS: HabitItem[] = [
     count: 3,
     dates: populateDates(d1),
   },
+];
+
+export const DUMMY_OPTIONS: HabitOption[] = [
+  { id: "o1", title: "Running" },
+  { id: "o2", title: "Reading" },
+  { id: "o1", title: "Swimming" },
 ];

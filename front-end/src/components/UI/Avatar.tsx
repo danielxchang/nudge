@@ -1,6 +1,5 @@
 import React from "react";
 import MuiAvatar from "@mui/material/Avatar";
-import { deepOrange } from "@mui/material/colors";
 import { getInitials } from "../../util/helpers";
 
 export enum AvatarType {
@@ -9,7 +8,7 @@ export enum AvatarType {
 }
 
 const avatarStyles = {
-  initials: { bgcolor: deepOrange[500] },
+  initials: { bgcolor: "#ff7f02" },
   image: {},
 };
 

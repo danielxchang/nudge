@@ -15,7 +15,7 @@ const HabitsList: React.FC = () => {
       sx={{
         width: "50%",
         bgcolor: "background.paper",
-        maxHeight: "65vh",
+        maxHeight: "60vh",
         overflow: "auto",
         margin: "auto",
       }}
