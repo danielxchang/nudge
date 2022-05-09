@@ -13,4 +13,9 @@ interface Habit {
   dates: DailyEntry[];
 }
 
+export interface HabitOption {
+  id: string;
+  title: string;
+}
+
 export default Habit;

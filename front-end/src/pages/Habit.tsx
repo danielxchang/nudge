@@ -4,6 +4,8 @@ import { DUMMY_HABITS, DUMMY_USER } from "../util/dummy";
 import HabitTimeline from "../components/habits/HabitTimeline";
 import Container from "../components/UI/Container";
 import HabitType, { DailyEntry } from "../models/habit";
+import Layout from "../components/layout/Layout";
+import BreadCrumbs from "../components/UI/BreadCrumbs";
 
 const Habit: React.FC = () => {
   const { habitId } = useParams();
@@ -29,16 +31,19 @@ const Habit: React.FC = () => {
   };
 
   return (
-    <Container>
-      <h1>{habit && habit.description}</h1>
-      {habit && (
-        <HabitTimeline
-          userName={DUMMY_USER.name}
-          habit={habit}
-          addToday={addDateHandler}
-        />
-      )}
-    </Container>
+    <Layout>
+      <Container>
+        <BreadCrumbs pageTitle={habit?.description} />
+        <h1>{habit && habit.description}</h1>
+        {habit && (
+          <HabitTimeline
+            userName={DUMMY_USER.name}
+            habit={habit}
+            addToday={addDateHandler}
+          />
+        )}
+      </Container>
+    </Layout>
   );
 };
 

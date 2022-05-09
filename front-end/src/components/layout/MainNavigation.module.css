@@ -13,7 +13,7 @@
 .logo {
   display: flex;
   font-size: 2rem;
-  color: black;
+  color: #ff7f02;
   height: 3rem;
   margin-left: 3rem;
   align-items: center;
@@ -46,9 +46,8 @@
   color: black;
 }
 
-.logo:hover,
 .nav a:hover,
 .nav a:active,
 .nav a.active {
-  color: #e48900;
+  color: #ff7f02;
 }
