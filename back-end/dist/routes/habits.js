@@ -22,13 +22,18 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
 const habitController = __importStar(require("../controllers/habits"));
+const is_admin_1 = __importDefault(require("../middleware/is-admin"));
 const router = (0, express_1.Router)();
 router.get("/", habitController.getHabits);
 router.get("/options", habitController.getHabitOptions);
-router.post("/options/add/:category", habitController.addHabitOption);
+router.get("/:habitId", habitController.getHabit);
+router.post("/options/add/:category", is_admin_1.default, habitController.addHabitOption);
 router.post("/new", habitController.postNewHabit);
 router.patch("/:habitId", habitController.addHabitEntry);
 exports.default = router;

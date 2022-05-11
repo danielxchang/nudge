@@ -7,13 +7,13 @@ const habitOptionSchema = new Schema({
     type: String,
     required: true,
   },
-  matchedUsers: [
+  matches: [
     {
       userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
       habitId: { type: Schema.Types.ObjectId, ref: "Habit", required: true },
     },
   ],
-  unmatchedUsers: [
+  remaining: [
     {
       userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
       habitId: { type: Schema.Types.ObjectId, ref: "Habit", required: true },
