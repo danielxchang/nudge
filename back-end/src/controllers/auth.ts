@@ -6,6 +6,16 @@ import jwt from "jsonwebtoken";
 import User from "../models/User";
 import { getInitials } from "../util/helpers";
 import { ErrorResponse } from "../util/types";
+import mongoose from "mongoose";
+
+const createToken = (user: { email: string; _id: mongoose.Types.ObjectId }) => {
+  const token = jwt.sign(
+    { email: user.email, userId: user._id.toString() },
+    process.env.JWT_SECRET!,
+    { expiresIn: "1h" }
+  );
+  return token;
+};
 
 export const login: RequestHandler = async (req, res, next) => {
   const { email, password } = req.body;
@@ -23,11 +33,7 @@ export const login: RequestHandler = async (req, res, next) => {
       throw error;
     }
 
-    const token = jwt.sign(
-      { email: user.email, userId: user._id.toString() },
-      process.env.JWT_SECRET!,
-      { expiresIn: "1h" }
-    );
+    const token = createToken(user);
 
     res.status(200).json({ token, userId: user._id.toString() });
   } catch (err: any | ErrorResponse) {
@@ -56,9 +62,11 @@ export const signup: RequestHandler = async (req, res, next) => {
       habits: [],
     });
     const createdUser = await user.save();
+    const token = createToken(createdUser);
+
     res
       .status(201)
-      .json({ message: "Sign Up Successful!", userId: createdUser._id });
+      .json({ message: "Sign Up Successful!", token, userId: createdUser._id });
   } catch (err: any | ErrorResponse) {
     if (!err.statusCode) {
       err.statusCode = 500;

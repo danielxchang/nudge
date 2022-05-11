@@ -9,9 +9,9 @@ const habitSchema = new Schema({
     habitType: {
         type: Schema.Types.ObjectId,
         required: true,
-        ref: "Options",
+        ref: "Option",
     },
-    dateStarted: {
+    startDate: {
         type: Date,
     },
     user: {
@@ -23,12 +23,10 @@ const habitSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "User",
     },
-    entries: [
-        {
-            date: { type: Date, required: true },
-            userSuccess: { type: Boolean, required: true, default: false },
-            partnerSuccess: { type: Boolean, required: true, default: false },
-        },
-    ],
+    partnerHabit: {
+        type: Schema.Types.ObjectId,
+        ref: "Habit",
+    },
+    entries: [{ type: Date, required: true }],
 });
 exports.default = mongoose_1.default.model("Habit", habitSchema);

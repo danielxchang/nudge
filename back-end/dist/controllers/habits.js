@@ -12,82 +12,179 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.postNewHabit = exports.addHabitEntry = exports.getHabits = exports.addHabitOption = exports.getHabitOptions = void 0;
+exports.postNewHabit = exports.addHabitEntry = exports.getHabit = exports.getHabits = exports.addHabitOption = exports.getHabitOptions = void 0;
 const axios_1 = __importDefault(require("axios"));
 const HabitOption_1 = __importDefault(require("../models/HabitOption"));
 const User_1 = __importDefault(require("../models/User"));
 const Habit_1 = __importDefault(require("../models/Habit"));
 const constants_1 = require("../util/constants");
+const types_1 = require("../util/types");
+const helpers_1 = require("../util/helpers");
 const getHabitOptions = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const options = yield HabitOption_1.default.find();
-    res.json({ options });
+    try {
+        const options = yield HabitOption_1.default.find();
+        res.json({ options });
+    }
+    catch (err) {
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
+    }
 });
 exports.getHabitOptions = getHabitOptions;
 const addHabitOption = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const category = constants_1.HOBBY_CATEGORIES.find((cat) => cat === req.params.category) || "general";
-    const response = yield axios_1.default.get(constants_1.API_NINJAS_URL + category, {
-        headers: {
-            "X-Api-Key": process.env.API_NINJAS_KEY,
-        },
-    });
-    const data = response.data;
-    const hobby = data.hobby;
-    const foundHabit = yield HabitOption_1.default.findOne({ title: hobby });
-    if (foundHabit) {
-        res.status(422).json({ message: "Already added!" });
-    }
-    else {
-        const option = new HabitOption_1.default({
-            title: hobby,
-            matchedUsers: [],
-            unmatchedUsers: [],
+    try {
+        const category = constants_1.HOBBY_CATEGORIES.find((cat) => cat === req.params.category) || "general";
+        const response = yield axios_1.default.get(constants_1.API_NINJAS_URL + category, {
+            headers: {
+                "X-Api-Key": process.env.API_NINJAS_KEY,
+            },
         });
-        yield option.save();
-        res.json({ message: `Added ${hobby} to options database!`, category });
+        const data = response.data;
+        const hobby = data.hobby;
+        const foundHabit = yield HabitOption_1.default.findOne({ title: hobby });
+        if (foundHabit) {
+            throw new types_1.ErrorResponse("Already added!", 422);
+        }
+        else {
+            const option = new HabitOption_1.default({
+                title: hobby,
+                matches: [],
+                remaining: [],
+            });
+            yield option.save();
+            res.json({ message: `Added ${hobby} to options database!`, category });
+        }
+    }
+    catch (err) {
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
     }
 });
 exports.addHabitOption = addHabitOption;
-// CHECK THIS
 const getHabits = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const user = yield User_1.default.findById(req.userId).populate("habits");
-    res.json({ count: user.habits.length, habits: user.habits });
+    try {
+        const user = yield User_1.default.findById(req.userId).populate({
+            path: "habits",
+            populate: [
+                {
+                    path: "habitType",
+                    model: "Option",
+                    select: "title",
+                },
+                { path: "user", model: "User", select: "initials" },
+                { path: "partner", model: "User", select: "initials" },
+            ],
+        });
+        res.json({ count: user.habits.length, habits: user.habits });
+    }
+    catch (err) {
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
+    }
 });
 exports.getHabits = getHabits;
-// TODO
-const addHabitEntry = (req, res, next) => {
-    console.log("Getting Habits");
-};
+const getHabit = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const userId = req.userId;
+    const { habitId } = req.params;
+    try {
+        const habit = yield Habit_1.default.findById(habitId)
+            .populate("user", "initials")
+            .populate("partner", "initials")
+            .populate("habitType", "title")
+            .populate("partnerHabit", "entries");
+        if (habit.user.id !== userId)
+            throw new types_1.ErrorResponse("Unauthorized Habit!", 401);
+        if (!habit.partner) {
+            return res.json({ habit });
+        }
+        const entries = (0, helpers_1.combineEntries)(habit.startDate, habit.entries, habit.partnerHabit.entries);
+        res.json({
+            user: habit.user,
+            partner: habit.partner,
+            habitId: habit.id,
+            title: habit.habitType.title,
+            entries,
+        });
+    }
+    catch (err) {
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
+    }
+});
+exports.getHabit = getHabit;
+const addHabitEntry = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a;
+    const userId = req.userId;
+    const { habitId } = req.params;
+    try {
+        const habit = yield Habit_1.default.findById(habitId);
+        if (habit.user.toString() !== userId)
+            throw new types_1.ErrorResponse("Unauthorized Habit!", 401);
+        const today = new Date(new Date().toDateString());
+        if (((_a = habit.entries.at(-1)) === null || _a === void 0 ? void 0 : _a.toString()) === today.toString()) {
+            throw new types_1.ErrorResponse("Already added today's entry!", 409);
+        }
+        const newEntry = today;
+        habit.entries.push(newEntry);
+        yield habit.save();
+        res.json({ message: "Added today's habit entry!", habit });
+    }
+    catch (err) {
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
+    }
+});
 exports.addHabitEntry = addHabitEntry;
-// CHECK THIS
 const postNewHabit = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { optionId } = req.body;
     const userId = req.userId;
-    const user = yield User_1.default.findById(userId);
-    const option = yield HabitOption_1.default.findById(optionId);
-    const habit = new Habit_1.default({
-        habitType: optionId,
-        dateStarted: new Date(),
-        user: user._id,
-        entries: [],
-    });
-    let partner;
-    if (option.unmatchedUsers.length === 0) {
-        option.unmatchedUsers.push(user._id);
+    try {
+        const user = yield User_1.default.findById(userId);
+        const option = yield HabitOption_1.default.findById(optionId);
+        const remaining = option.remaining;
+        const habit = new Habit_1.default({
+            habitType: optionId,
+            user: user._id,
+            entries: [],
+        });
+        user.habits.push(habit._id);
+        const partnerIdx = remaining.findIndex(({ userId: uid }) => uid.toString() !== userId);
+        if (partnerIdx === -1) {
+            remaining.push({ userId: user._id, habitId: habit._id });
+        }
+        else {
+            const today = new Date(new Date().toDateString());
+            const { userId: partnerId, habitId: pHabitId } = remaining.splice(partnerIdx, 1)[0];
+            const partnerHabit = yield Habit_1.default.findById(pHabitId);
+            partnerHabit.partner = userId;
+            partnerHabit.partnerHabit = habit._id;
+            partnerHabit.startDate = today;
+            yield partnerHabit.save();
+            option.matches.push({ userId: user._id, habitId: habit._id }, { userId: partnerId, habitId: pHabitId });
+            habit.partner = partnerId;
+            habit.partnerHabit = pHabitId;
+            habit.startDate = today;
+        }
+        yield option.save();
+        yield habit.save();
+        yield user.save();
+        res.json({ message: "Posted new habit!", userId, habit });
     }
-    else {
-        const { userId: partnerId, habitId: pHabitId } = option.unmatchedUsers.pop();
-        const partnerHabit = yield Habit_1.default.findById(pHabitId);
-        partnerHabit.partner = userId;
-        yield partnerHabit.save();
-        partner = yield User_1.default.findById(partnerId);
-        option.matchedUsers.push({ userId: user._id, habitId: habit._id });
-        option.matchedUsers.push({ userId: partnerId, habitId: pHabitId });
+    catch (err) {
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
     }
-    habit.partner = partner._id;
-    yield option.save();
-    yield habit.save();
-    user.habits.push(habit._id);
-    yield user.save();
-    res.json({ message: "Posted new habit!", habit });
 });
 exports.postNewHabit = postNewHabit;
