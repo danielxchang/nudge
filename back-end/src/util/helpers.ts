@@ -1,1 +1,4 @@
-// Add a function to populate database with hobby options from Hobbies API (https://www.api-ninjas.com/api/hobbies)
+export const getInitials = (fullName: string) => {
+  const nameParts = fullName.split(" ");
+  return nameParts.map((n) => n.charAt(0).toUpperCase()).join("");
+};

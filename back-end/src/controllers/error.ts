@@ -1,5 +1,11 @@
 import { ErrorRequestHandler } from "express";
+import { ErrorResponse } from "../util/types";
 
-export const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
-  res.status(500).json({ message: err.message });
+export const errorHandler: ErrorRequestHandler = (
+  err: ErrorResponse,
+  req,
+  res,
+  next
+) => {
+  res.status(500).json({ message: err.message, status: err.statusCode });
 };

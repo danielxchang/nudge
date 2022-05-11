@@ -6,11 +6,12 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
 const body_parser_1 = __importDefault(require("body-parser"));
 const mongoose_1 = __importDefault(require("mongoose"));
+const dotenv_1 = __importDefault(require("dotenv"));
 const habits_1 = __importDefault(require("./routes/habits"));
 const auth_1 = __importDefault(require("./routes/auth"));
-const utility_1 = __importDefault(require("./routes/utility"));
 const error_1 = require("./controllers/error");
-const constants_1 = require("./util/constants");
+const is_auth_1 = __importDefault(require("./middleware/is-auth"));
+dotenv_1.default.config();
 const app = (0, express_1.default)();
 app.use(body_parser_1.default.json());
 app.use((req, res, next) => {
@@ -19,14 +20,13 @@ app.use((req, res, next) => {
     res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
     next();
 });
-app.use("api/habits", habits_1.default);
-app.use("api/auth", auth_1.default);
-app.use("api/util", utility_1.default);
+app.use("/api/auth", auth_1.default);
+app.use("/api/habits", is_auth_1.default, habits_1.default);
 app.use(error_1.errorHandler);
 mongoose_1.default
-    .connect(constants_1.MONGODB_URI)
+    .connect(`mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0.yfvfw.mongodb.net/${process.env.MONGO_DEFAULT_DATABASE}`)
     .then((result) => {
-    console.log("CONNECTED!!!");
+    console.log("CONNECTED");
     app.listen(process.env.PORT || 3000);
 })
     .catch((err) => console.log(err));
