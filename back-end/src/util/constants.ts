@@ -1,1 +1,10 @@
-export const MONGODB_URI = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0.yfvfw.mongodb.net/${process.env.MONGO_DEFAULT_DATABASE}`;
+export const API_NINJAS_URL = "https://api.api-ninjas.com/v1/hobbies?category=";
+
+export const HOBBY_CATEGORIES = [
+  "general",
+  "sports_and_outdoors",
+  "education",
+  "collection",
+  "competition",
+  "observation",
+];
