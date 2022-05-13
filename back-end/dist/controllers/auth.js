@@ -19,6 +19,7 @@ const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const User_1 = __importDefault(require("../models/User"));
 const helpers_1 = require("../util/helpers");
 const types_1 = require("../util/types");
+const constants_1 = require("../util/constants");
 const createToken = (user) => {
     const token = jsonwebtoken_1.default.sign({ email: user.email, userId: user._id.toString() }, process.env.JWT_SECRET, { expiresIn: "1h" });
     return token;
@@ -37,7 +38,7 @@ const login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* ()
             throw error;
         }
         const token = createToken(user);
-        res.status(200).json({ token, userId: user._id.toString() });
+        res.status(200).json({ token, expiresIn: constants_1.expiresInSeconds.toString() });
     }
     catch (err) {
         if (!err.statusCode) {
@@ -65,9 +66,10 @@ const signup = (req, res, next) => __awaiter(void 0, void 0, void 0, function* (
         });
         const createdUser = yield user.save();
         const token = createToken(createdUser);
-        res
-            .status(201)
-            .json({ message: "Sign Up Successful!", token, userId: createdUser._id });
+        res.status(201).json({
+            token,
+            expiresIn: constants_1.expiresInSeconds.toString(),
+        });
     }
     catch (err) {
         if (!err.statusCode) {

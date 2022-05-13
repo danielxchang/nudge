@@ -1,16 +1,9 @@
 import React from "react";
 
-import worldImage from "../components/UI/world.jpg";
-import ImageOverlay from "../components/UI/ImageOverlay";
-import Layout from "../components/layout/Layout";
+import WorldPageContent from "../components/world/WorldPageContent";
 
 const WorldHabits: React.FC = () => {
-  return (
-    <Layout>
-      <h1>The World</h1>
-      <ImageOverlay image={worldImage} alt="world" text="Coming Soon..." />
-    </Layout>
-  );
+  return <WorldPageContent />;
 };
 
 export default WorldHabits;

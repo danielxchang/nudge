@@ -9,7 +9,7 @@ import HabitItem from "../../models/habit";
 
 interface Props {
   habit: HabitItem;
-  user: { id: string; name: string };
+  user: string;
 }
 
 const Habit: React.FC<Props> = (props) => {
@@ -18,19 +18,37 @@ const Habit: React.FC<Props> = (props) => {
   return (
     <ListItemButton
       divider
-      onClick={() => navigate(`/${props.user.id}/habits/${props.habit.id}`)}
+      onClick={() => navigate(`/habits/${props.habit.id}`)}
+      disabled={!props.habit.partner}
     >
       <ListItemAvatar>
-        <Avatar type={AvatarType.initials} name={props.user.name} />
+        <Avatar type={AvatarType.initials} name={props.user} person="user" />
       </ListItemAvatar>
       <ListItemText
-        primary={props.habit.description}
-        secondary={`Last entry: ${props.habit.dateStarted}`}
+        primary={props.habit.title}
+        secondary={
+          props.habit.partner
+            ? `Last entry: ${new Date(
+                props.habit.startDate!
+              ).toLocaleDateString("en-US")}`
+            : "Pairing in Progress"
+        }
         sx={{ textAlign: "center" }}
       />
-      <ListItemAvatar>
-        <Avatar type={AvatarType.initials} name={props.habit.partner} />
-      </ListItemAvatar>
+      {props.habit.partner && (
+        <ListItemAvatar>
+          <Avatar
+            type={AvatarType.initials}
+            name={props.habit.partner}
+            person="partner"
+          />
+        </ListItemAvatar>
+      )}
+      {!props.habit.partner && (
+        <ListItemAvatar>
+          <Avatar type={AvatarType.initials} name="TBD" person="partner" />
+        </ListItemAvatar>
+      )}
     </ListItemButton>
   );
 };

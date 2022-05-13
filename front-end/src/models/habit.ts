@@ -6,11 +6,11 @@ export interface DailyEntry {
 
 interface Habit {
   id: string;
-  dateStarted: string;
-  partner: string;
-  description: string;
-  count: number;
-  dates: DailyEntry[];
+  title: string;
+  user: string;
+  partner?: string;
+  startDate?: string;
+  entries?: DailyEntry[];
 }
 
 export interface HabitOption {

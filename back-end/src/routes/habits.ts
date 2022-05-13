@@ -13,7 +13,11 @@ router.get("/:habitId", habitController.getHabit);
 
 router.post("/options/add/:category", isAdmin, habitController.addHabitOption);
 
-router.post("/new", habitController.postNewHabit);
+router.post(
+  "/new",
+  habitController.postHortonHabit,
+  habitController.postNewHabit
+);
 
 router.patch("/:habitId", habitController.addHabitEntry);
 

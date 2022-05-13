@@ -17,7 +17,7 @@ const combineEntries = (startDate, userEntries, partnerEntries) => {
         userIdx = advancePointer(userEntries, userIdx, date);
         partnerIdx = advancePointer(partnerEntries, partnerIdx, date);
         combinedEntries.push({
-            date: new Date(date.toDateString()),
+            date: date.toDateString(),
             userSuccess: ((_a = userEntries.at(userIdx)) === null || _a === void 0 ? void 0 : _a.toString()) === date.toString(),
             partnerSuccess: ((_b = partnerEntries.at(partnerIdx)) === null || _b === void 0 ? void 0 : _b.toString()) === date.toString(),
         });

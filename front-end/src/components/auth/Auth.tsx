@@ -1,4 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
+
 import Button from "@mui/material/Button";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
@@ -7,23 +9,69 @@ import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import ExploreIcon from "@mui/icons-material/Explore";
+
 import authImage from "../../static/images/elephant.jpg";
-import { useNavigate } from "react-router-dom";
-import { DUMMY_USER } from "../../util/dummy";
+import AuthContext from "../../store/auth-context";
 
 const theme = createTheme();
 
 const Auth = () => {
+  const authCtx = useContext(AuthContext);
   const [isLogin, setIsLogin] = useState(true);
   const navigate = useNavigate();
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+
+  const submitHandler = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    console.log({
-      email: data.get("email"),
-      password: data.get("password"),
-    });
-    if (DUMMY_USER.loggedIn) navigate(`/${DUMMY_USER.id}/habits`);
+    const name = data.get("name");
+    const email = data.get("email");
+    const password = data.get("password");
+
+    const url = `${process.env.REACT_APP_API_URL}/api/auth/${
+      isLogin ? "login" : "signup"
+    }`;
+    const body = {
+      ...(!isLogin && { name }),
+      email,
+      password,
+    };
+
+    fetch(url, {
+      method: "POST",
+      body: JSON.stringify(body),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (!data.token) throw new Error(data.message);
+
+        const expirationTime = new Date(
+          new Date().getTime() + +data.expiresIn * 1000
+        );
+        authCtx.login(data.token, expirationTime.toISOString());
+        navigate(`/habits`);
+      })
+      .catch((err) => alert(err.message));
+  };
+
+  const exploreHandler = () => {
+    const url = `${process.env.REACT_APP_API_URL}/api/auth/horton`;
+    fetch(url, {
+      method: "POST",
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (!data.token) throw new Error(data.message);
+        const expirationTime = new Date(
+          new Date().getTime() + +data.expiresIn * 1000
+        );
+        authCtx.login(data.token, expirationTime.toISOString());
+        navigate(`/habits`);
+      })
+      .catch((err) => alert(err.message));
   };
 
   const switchModeHandler = () => {
@@ -70,9 +118,21 @@ const Auth = () => {
             <Box
               component="form"
               noValidate
-              onSubmit={handleSubmit}
+              onSubmit={submitHandler}
               sx={{ mt: 1 }}
             >
+              {!isLogin && (
+                <TextField
+                  margin="normal"
+                  required
+                  fullWidth
+                  id="name"
+                  label="Name"
+                  name="name"
+                  autoComplete="name"
+                  autoFocus
+                />
+              )}
               <TextField
                 margin="normal"
                 required
@@ -122,6 +182,24 @@ const Auth = () => {
                 {isLogin ? "Switch to Sign Up" : "Switch to Sign In"}
               </Button>
             </Box>
+            <Button
+              type="button"
+              variant="contained"
+              sx={{
+                mt: 3,
+                mb: 2,
+                border: "white",
+                backgroundColor: "#ff7f02",
+                ":hover": {
+                  backgroundColor: "#ec5304",
+                },
+              }}
+              onClick={exploreHandler}
+              title="Click to explore as Horton"
+            >
+              <ExploreIcon sx={{ mr: 1 }} />
+              EXPLORE
+            </Button>
           </Box>
         </Grid>
       </Grid>

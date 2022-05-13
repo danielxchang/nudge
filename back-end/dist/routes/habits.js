@@ -34,6 +34,6 @@ router.get("/", habitController.getHabits);
 router.get("/options", habitController.getHabitOptions);
 router.get("/:habitId", habitController.getHabit);
 router.post("/options/add/:category", is_admin_1.default, habitController.addHabitOption);
-router.post("/new", habitController.postNewHabit);
+router.post("/new", habitController.postHortonHabit, habitController.postNewHabit);
 router.patch("/:habitId", habitController.addHabitEntry);
 exports.default = router;

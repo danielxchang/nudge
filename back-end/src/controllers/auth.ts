@@ -6,6 +6,7 @@ import jwt from "jsonwebtoken";
 import User from "../models/User";
 import { getInitials } from "../util/helpers";
 import { ErrorResponse } from "../util/types";
+import { expiresInSeconds } from "../util/constants";
 import mongoose from "mongoose";
 
 const createToken = (user: { email: string; _id: mongoose.Types.ObjectId }) => {
@@ -35,7 +36,7 @@ export const login: RequestHandler = async (req, res, next) => {
 
     const token = createToken(user);
 
-    res.status(200).json({ token, userId: user._id.toString() });
+    res.status(200).json({ token, expiresIn: expiresInSeconds.toString() });
   } catch (err: any | ErrorResponse) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -64,9 +65,10 @@ export const signup: RequestHandler = async (req, res, next) => {
     const createdUser = await user.save();
     const token = createToken(createdUser);
 
-    res
-      .status(201)
-      .json({ message: "Sign Up Successful!", token, userId: createdUser._id });
+    res.status(201).json({
+      token,
+      expiresIn: expiresInSeconds.toString(),
+    });
   } catch (err: any | ErrorResponse) {
     if (!err.statusCode) {
       err.statusCode = 500;

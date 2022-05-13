@@ -2,6 +2,7 @@ import { Router } from "express";
 import { body } from "express-validator";
 
 import { login, signup } from "../controllers/auth";
+import isHorton from "../middleware/is-horton";
 import User from "../models/User";
 
 const router = Router();
@@ -27,5 +28,7 @@ router.post(
   ],
   signup
 );
+
+router.post("/horton", isHorton, login);
 
 export default router;

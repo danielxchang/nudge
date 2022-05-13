@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.HOBBY_CATEGORIES = exports.API_NINJAS_URL = void 0;
+exports.EMILY_CREDENTIALS = exports.HORTON_CREDENTIALS = exports.expiresInSeconds = exports.HOBBY_CATEGORIES = exports.API_NINJAS_URL = void 0;
 exports.API_NINJAS_URL = "https://api.api-ninjas.com/v1/hobbies?category=";
 exports.HOBBY_CATEGORIES = [
     "general",
@@ -10,3 +10,12 @@ exports.HOBBY_CATEGORIES = [
     "competition",
     "observation",
 ];
+exports.expiresInSeconds = 3600;
+exports.HORTON_CREDENTIALS = {
+    email: "horton@horton.com",
+    password: "hortonpassword",
+};
+exports.EMILY_CREDENTIALS = {
+    email: "emily@emily.com",
+    password: "emilypassword",
+};

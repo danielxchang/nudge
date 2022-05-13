@@ -25,19 +25,19 @@ export const DUMMY_USER = { id: "u1", name: "Daniel Chang", loggedIn: true };
 export const DUMMY_HABITS: HabitItem[] = [
   {
     id: "h1",
-    dateStarted: new Date().toLocaleDateString("en-US"),
-    partner: "Stephen Curry",
-    description: "Running",
-    count: 1,
-    dates: populateDates(d1),
+    startDate: new Date().toLocaleDateString("en-US"),
+    user: "DC",
+    partner: "SC",
+    title: "Running",
+    entries: populateDates(d1),
   },
   {
     id: "h2",
-    dateStarted: new Date().toLocaleDateString("en-US"),
-    partner: "Jordan Poole",
-    description: "Reading",
-    count: 3,
-    dates: populateDates(d1),
+    startDate: new Date().toLocaleDateString("en-US"),
+    user: "DC",
+    partner: "JP",
+    title: "Reading",
+    entries: populateDates(d1),
   },
 ];
 

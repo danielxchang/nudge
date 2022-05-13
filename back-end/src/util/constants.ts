@@ -8,3 +8,15 @@ export const HOBBY_CATEGORIES = [
   "competition",
   "observation",
 ];
+
+export const expiresInSeconds = 3600;
+
+export const HORTON_CREDENTIALS = {
+  email: "horton@horton.com",
+  password: "hortonpassword",
+};
+
+export const EMILY_CREDENTIALS = {
+  email: "emily@emily.com",
+  password: "emilypassword",
+};

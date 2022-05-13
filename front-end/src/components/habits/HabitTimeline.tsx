@@ -11,29 +11,25 @@ import AvatarGroup from "@mui/material/AvatarGroup";
 
 import Avatar, { AvatarType } from "../UI/Avatar";
 import getIcon, { StatusIcon } from "../UI/Icons";
-import Habit, { DailyEntry } from "../../models/habit";
+import Habit from "../../models/habit";
 
 interface Props {
   userName: string;
   habit: Habit;
-  addToday: (newEntry: DailyEntry) => void;
+  addToday: () => void;
 }
 
 type DotColor = "success" | "grey" | "warning";
 
 const HabitTimeline: React.FC<Props> = (props) => {
   const today = new Date().toLocaleDateString("en-US");
-  const todayHabit = props.habit.dates.find((d) => d.date === today);
+  const todayHabit = props.habit.entries!.find(
+    (d) => new Date(d.date).toLocaleDateString() === today
+  );
   const completedToday = todayHabit && todayHabit.userSuccess;
 
   const onClickHandler = () => {
-    const lastEntry = props.habit.dates.slice(-1)[0];
-    const newEntry = {
-      date: today,
-      userSuccess: true,
-      partnerSuccess: lastEntry.date === today && lastEntry.partnerSuccess,
-    };
-    props.addToday(newEntry);
+    props.addToday();
   };
 
   const addBtnContent = (
@@ -44,7 +40,7 @@ const HabitTimeline: React.FC<Props> = (props) => {
         variant="body2"
         color="text.secondary"
       >
-        {completedToday ? "" : "Today"}
+        {completedToday ? "" : "Mark Today"}
       </TimelineOppositeContent>
 
       <TimelineSeparator>
@@ -70,7 +66,7 @@ const HabitTimeline: React.FC<Props> = (props) => {
     </TimelineItem>
   );
 
-  const dailyEntries = props.habit.dates.map((d) => {
+  const dailyEntries = props.habit.entries!.map((d) => {
     let status;
     let dotColor: DotColor;
     if (d.userSuccess && d.partnerSuccess) {
@@ -87,10 +83,18 @@ const HabitTimeline: React.FC<Props> = (props) => {
     const avatarGroup = (
       <AvatarGroup max={2}>
         {d.userSuccess && (
-          <Avatar type={AvatarType.initials} name={props.userName} />
+          <Avatar
+            type={AvatarType.initials}
+            name={props.userName}
+            person="user"
+          />
         )}
         {d.partnerSuccess && (
-          <Avatar type={AvatarType.initials} name={props.habit.partner} />
+          <Avatar
+            type={AvatarType.initials}
+            name={props.habit.partner!}
+            person="partner"
+          />
         )}
       </AvatarGroup>
     );
@@ -103,7 +107,7 @@ const HabitTimeline: React.FC<Props> = (props) => {
           variant="body2"
           color="text.secondary"
         >
-          {d.date}
+          {new Date(d.date).toLocaleDateString()}
         </TimelineOppositeContent>
 
         <TimelineSeparator>
