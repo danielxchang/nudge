@@ -4,7 +4,11 @@ import axios from "axios";
 import HabitOption from "../models/HabitOption";
 import User from "../models/User";
 import Habit from "../models/Habit";
-import { API_NINJAS_URL, HOBBY_CATEGORIES } from "../util/constants";
+import {
+  API_NINJAS_URL,
+  EMILY_CREDENTIALS,
+  HOBBY_CATEGORIES,
+} from "../util/constants";
 import {
   CustomRequest,
   NinjaHobbyResponse,
@@ -20,7 +24,11 @@ export const getHabitOptions: RequestHandler = async (
 ) => {
   try {
     const options = await HabitOption.find();
-    res.json({ options });
+    res.json({
+      options: options.map((option) => {
+        return { id: option._id, title: option.title };
+      }),
+    });
   } catch (err: any | ErrorResponse) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -80,7 +88,17 @@ export const getHabits: RequestHandler = async (
       ],
     });
 
-    res.json({ count: user.habits.length, habits: user.habits });
+    const userHabits = user.habits.map((h: any) => {
+      return {
+        id: h._id,
+        title: h.habitType.title,
+        startDate: h.startDate,
+        user: h.user.initials,
+        ...(h.partner && { partner: h.partner.initials }),
+      };
+    });
+
+    res.json({ habits: userHabits });
   } catch (err: any | ErrorResponse) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -118,10 +136,10 @@ export const getHabit: RequestHandler = async (
     );
 
     res.json({
-      user: habit.user,
-      partner: habit.partner,
-      habitId: habit.id,
+      id: habit.id,
       title: habit.habitType.title,
+      user: habit.user.initials,
+      partner: habit.partner.initials,
       entries,
     });
   } catch (err: any | ErrorResponse) {
@@ -141,7 +159,10 @@ export const addHabitEntry: RequestHandler = async (
   const { habitId } = req.params;
 
   try {
-    const habit = await Habit.findById(habitId);
+    const habit = await Habit.findById(habitId).populate(
+      "partnerHabit",
+      "entries"
+    );
     if (habit.user.toString() !== userId)
       throw new ErrorResponse("Unauthorized Habit!", 401);
 
@@ -153,7 +174,14 @@ export const addHabitEntry: RequestHandler = async (
     const newEntry = today;
     habit.entries.push(newEntry);
     await habit.save();
-    res.json({ message: "Added today's habit entry!", habit });
+
+    const entries = combineEntries(
+      habit.startDate,
+      habit.entries,
+      habit.partnerHabit.entries
+    );
+
+    res.json({ ok: true, entries });
   } catch (err: any | ErrorResponse) {
     if (!err.statusCode) {
       err.statusCode = 500;
@@ -167,23 +195,31 @@ export const postNewHabit: RequestHandler = async (
   res,
   next
 ) => {
-  const { optionId } = req.body;
+  const { optionInput } = req.body;
   const userId = req.userId!;
   try {
     const user = await User.findById(userId);
-    const option = await HabitOption.findById(optionId);
+    const option = await HabitOption.findOne({ title: optionInput });
     const remaining = option.remaining as HabitOptionMatchObj[];
 
     const habit = new Habit({
-      habitType: optionId,
+      habitType: option._id,
       user: user._id,
       entries: [],
     });
     user.habits.push(habit._id);
 
-    const partnerIdx = remaining.findIndex(
-      ({ userId: uid }) => uid.toString() !== userId
-    );
+    let partnerIdx;
+    if (req.isHorton) {
+      const emily = await User.findOne({ email: EMILY_CREDENTIALS.email });
+      partnerIdx = remaining.findIndex(
+        ({ userId: uid }) => uid.toString() === emily._id.toString()
+      );
+    } else {
+      partnerIdx = remaining.findIndex(
+        ({ userId: uid }) => uid.toString() !== userId
+      );
+    }
 
     if (partnerIdx === -1) {
       remaining.push({ userId: user._id, habitId: habit._id });
@@ -194,14 +230,16 @@ export const postNewHabit: RequestHandler = async (
         1
       )[0];
       const partnerHabit = await Habit.findById(pHabitId);
-      partnerHabit.partner = userId;
-      partnerHabit.partnerHabit = habit._id;
-      partnerHabit.startDate = today;
-      await partnerHabit.save();
+
       option.matches.push(
         { userId: user._id, habitId: habit._id },
         { userId: partnerId, habitId: pHabitId }
       );
+      partnerHabit.partner = userId;
+      partnerHabit.partnerHabit = habit._id;
+      partnerHabit.startDate = today;
+      await partnerHabit.save();
+
       habit.partner = partnerId;
       habit.partnerHabit = pHabitId;
       habit.startDate = today;
@@ -210,7 +248,40 @@ export const postNewHabit: RequestHandler = async (
     await option.save();
     await habit.save();
     await user.save();
-    res.json({ message: "Posted new habit!", userId, habit });
+    res.json({ ok: true, habitId: habit._id });
+  } catch (err: any | ErrorResponse) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+
+export const postHortonHabit: RequestHandler = async (
+  req: CustomRequest,
+  res,
+  next
+) => {
+  if (!req.isHorton) return next();
+
+  const { optionInput } = req.body;
+  try {
+    const emily = await User.findOne({ email: EMILY_CREDENTIALS.email });
+    const option = await HabitOption.findOne({ title: optionInput });
+
+    const emilyHabit = new Habit({
+      habitType: option._id,
+      user: emily._id,
+      entries: [],
+    });
+    emily.habits.push(emilyHabit._id);
+
+    option.remaining.push({ userId: emily._id, habitId: emilyHabit._id });
+
+    await emilyHabit.save();
+    await emily.save();
+    await option.save();
+    return next();
   } catch (err: any | ErrorResponse) {
     if (!err.statusCode) {
       err.statusCode = 500;

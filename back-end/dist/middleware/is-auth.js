@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
+const constants_1 = require("../util/constants");
 const types_1 = require("../util/types");
 const isAuth = (req, res, next) => {
     const authHeader = req.get("Authorization");
@@ -24,7 +25,10 @@ const isAuth = (req, res, next) => {
         const error = new types_1.ErrorResponse("Not authenticated.", 401);
         throw error;
     }
-    req.userId = decodedToken.userId;
+    const { email, userId } = decodedToken;
+    req.userId = userId;
+    if (email === constants_1.HORTON_CREDENTIALS.email)
+        req.isHorton = true;
     next();
 };
 exports.default = isAuth;

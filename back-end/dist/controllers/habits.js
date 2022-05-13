@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.postNewHabit = exports.addHabitEntry = exports.getHabit = exports.getHabits = exports.addHabitOption = exports.getHabitOptions = void 0;
+exports.postHortonHabit = exports.postNewHabit = exports.addHabitEntry = exports.getHabit = exports.getHabits = exports.addHabitOption = exports.getHabitOptions = void 0;
 const axios_1 = __importDefault(require("axios"));
 const HabitOption_1 = __importDefault(require("../models/HabitOption"));
 const User_1 = __importDefault(require("../models/User"));
@@ -23,7 +23,11 @@ const helpers_1 = require("../util/helpers");
 const getHabitOptions = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const options = yield HabitOption_1.default.find();
-        res.json({ options });
+        res.json({
+            options: options.map((option) => {
+                return { id: option._id, title: option.title };
+            }),
+        });
     }
     catch (err) {
         if (!err.statusCode) {
@@ -79,7 +83,10 @@ const getHabits = (req, res, next) => __awaiter(void 0, void 0, void 0, function
                 { path: "partner", model: "User", select: "initials" },
             ],
         });
-        res.json({ count: user.habits.length, habits: user.habits });
+        const userHabits = user.habits.map((h) => {
+            return Object.assign({ id: h._id, title: h.habitType.title, startDate: h.startDate, user: h.user.initials }, (h.partner && { partner: h.partner.initials }));
+        });
+        res.json({ habits: userHabits });
     }
     catch (err) {
         if (!err.statusCode) {
@@ -105,10 +112,10 @@ const getHabit = (req, res, next) => __awaiter(void 0, void 0, void 0, function*
         }
         const entries = (0, helpers_1.combineEntries)(habit.startDate, habit.entries, habit.partnerHabit.entries);
         res.json({
-            user: habit.user,
-            partner: habit.partner,
-            habitId: habit.id,
+            id: habit.id,
             title: habit.habitType.title,
+            user: habit.user.initials,
+            partner: habit.partner.initials,
             entries,
         });
     }
@@ -125,7 +132,7 @@ const addHabitEntry = (req, res, next) => __awaiter(void 0, void 0, void 0, func
     const userId = req.userId;
     const { habitId } = req.params;
     try {
-        const habit = yield Habit_1.default.findById(habitId);
+        const habit = yield Habit_1.default.findById(habitId).populate("partnerHabit", "entries");
         if (habit.user.toString() !== userId)
             throw new types_1.ErrorResponse("Unauthorized Habit!", 401);
         const today = new Date(new Date().toDateString());
@@ -135,7 +142,8 @@ const addHabitEntry = (req, res, next) => __awaiter(void 0, void 0, void 0, func
         const newEntry = today;
         habit.entries.push(newEntry);
         yield habit.save();
-        res.json({ message: "Added today's habit entry!", habit });
+        const entries = (0, helpers_1.combineEntries)(habit.startDate, habit.entries, habit.partnerHabit.entries);
+        res.json({ ok: true, entries });
     }
     catch (err) {
         if (!err.statusCode) {
@@ -146,19 +154,26 @@ const addHabitEntry = (req, res, next) => __awaiter(void 0, void 0, void 0, func
 });
 exports.addHabitEntry = addHabitEntry;
 const postNewHabit = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const { optionId } = req.body;
+    const { optionInput } = req.body;
     const userId = req.userId;
     try {
         const user = yield User_1.default.findById(userId);
-        const option = yield HabitOption_1.default.findById(optionId);
+        const option = yield HabitOption_1.default.findOne({ title: optionInput });
         const remaining = option.remaining;
         const habit = new Habit_1.default({
-            habitType: optionId,
+            habitType: option._id,
             user: user._id,
             entries: [],
         });
         user.habits.push(habit._id);
-        const partnerIdx = remaining.findIndex(({ userId: uid }) => uid.toString() !== userId);
+        let partnerIdx;
+        if (req.isHorton) {
+            const emily = yield User_1.default.findOne({ email: constants_1.EMILY_CREDENTIALS.email });
+            partnerIdx = remaining.findIndex(({ userId: uid }) => uid.toString() === emily._id.toString());
+        }
+        else {
+            partnerIdx = remaining.findIndex(({ userId: uid }) => uid.toString() !== userId);
+        }
         if (partnerIdx === -1) {
             remaining.push({ userId: user._id, habitId: habit._id });
         }
@@ -166,11 +181,11 @@ const postNewHabit = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
             const today = new Date(new Date().toDateString());
             const { userId: partnerId, habitId: pHabitId } = remaining.splice(partnerIdx, 1)[0];
             const partnerHabit = yield Habit_1.default.findById(pHabitId);
+            option.matches.push({ userId: user._id, habitId: habit._id }, { userId: partnerId, habitId: pHabitId });
             partnerHabit.partner = userId;
             partnerHabit.partnerHabit = habit._id;
             partnerHabit.startDate = today;
             yield partnerHabit.save();
-            option.matches.push({ userId: user._id, habitId: habit._id }, { userId: partnerId, habitId: pHabitId });
             habit.partner = partnerId;
             habit.partnerHabit = pHabitId;
             habit.startDate = today;
@@ -178,7 +193,7 @@ const postNewHabit = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
         yield option.save();
         yield habit.save();
         yield user.save();
-        res.json({ message: "Posted new habit!", userId, habit });
+        res.json({ ok: true, habitId: habit._id });
     }
     catch (err) {
         if (!err.statusCode) {
@@ -188,3 +203,30 @@ const postNewHabit = (req, res, next) => __awaiter(void 0, void 0, void 0, funct
     }
 });
 exports.postNewHabit = postNewHabit;
+const postHortonHabit = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    if (!req.isHorton)
+        return next();
+    const { optionInput } = req.body;
+    try {
+        const emily = yield User_1.default.findOne({ email: constants_1.EMILY_CREDENTIALS.email });
+        const option = yield HabitOption_1.default.findOne({ title: optionInput });
+        const emilyHabit = new Habit_1.default({
+            habitType: option._id,
+            user: emily._id,
+            entries: [],
+        });
+        emily.habits.push(emilyHabit._id);
+        option.remaining.push({ userId: emily._id, habitId: emilyHabit._id });
+        yield emilyHabit.save();
+        yield emily.save();
+        yield option.save();
+        return next();
+    }
+    catch (err) {
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
+    }
+});
+exports.postHortonHabit = postHortonHabit;

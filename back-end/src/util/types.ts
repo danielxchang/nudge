@@ -9,6 +9,7 @@ export class ErrorResponse extends Error {
 
 export interface CustomRequest extends Request {
   userId?: string;
+  isHorton?: boolean;
 }
 
 export interface NinjaHobbyResponse {
@@ -23,7 +24,7 @@ export interface HabitOptionMatchObj {
 }
 
 export interface HabitEntry {
-  date: Date;
+  date: string;
   userSuccess: boolean;
   partnerSuccess: boolean;
 }

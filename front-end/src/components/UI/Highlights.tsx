@@ -7,7 +7,7 @@ import parse from "autosuggest-highlight/parse";
 import { HabitOption } from "../../models/habit";
 
 interface Props {
-  habitOptions: HabitOption[];
+  options: HabitOption[];
   label: string;
 }
 
@@ -15,7 +15,7 @@ const Highlights: React.FC<Props> = (props) => {
   return (
     <Autocomplete
       id="highlights-input"
-      options={props.habitOptions}
+      options={props.options}
       getOptionLabel={(option) => option.title}
       renderInput={(params) => (
         <TextField {...params} label={props.label} margin="normal" />

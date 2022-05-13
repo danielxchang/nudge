@@ -20,7 +20,7 @@ export const combineEntries = (
     userIdx = advancePointer(userEntries, userIdx, date);
     partnerIdx = advancePointer(partnerEntries, partnerIdx, date);
     combinedEntries.push({
-      date: new Date(date.toDateString()),
+      date: date.toDateString(),
       userSuccess: userEntries.at(userIdx)?.toString() === date.toString(),
       partnerSuccess:
         partnerEntries.at(partnerIdx)?.toString() === date.toString(),

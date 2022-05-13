@@ -1,12 +1,12 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Link, NavLink } from "react-router-dom";
 
 import logo from ".//logo.png";
 import classes from "./MainNavigation.module.css";
-
-const DUMMY_USER = { id: "u1", name: "Daniel Chang" };
+import AuthContext from "../../store/auth-context";
 
 const MainNavigation: React.FC = (props) => {
+  const authCtx = useContext(AuthContext);
   return (
     <header>
       <div className={classes.header}>
@@ -18,7 +18,7 @@ const MainNavigation: React.FC = (props) => {
           <ul>
             <li>
               <NavLink
-                to={`/${DUMMY_USER.id}/habits`}
+                to={`/habits`}
                 className={({ isActive }) => (isActive && classes.active) || ""}
               >
                 Me
@@ -26,7 +26,7 @@ const MainNavigation: React.FC = (props) => {
             </li>
             <li>
               <NavLink
-                to="/world/habits"
+                to="/world"
                 className={({ isActive }) => (isActive && classes.active) || ""}
               >
                 World
@@ -36,6 +36,7 @@ const MainNavigation: React.FC = (props) => {
               <NavLink
                 to="/"
                 className={({ isActive }) => (isActive && classes.active) || ""}
+                onClick={authCtx.logout}
               >
                 Sign Out
               </NavLink>
