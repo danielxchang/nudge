@@ -3,6 +3,7 @@ import bodyParser from "body-parser";
 import mongoose from "mongoose";
 import cors from "cors";
 import dotenv from "dotenv";
+import helmet from "helmet";
 
 import habitRoutes from "./routes/habits";
 import authRoutes from "./routes/auth";
@@ -12,6 +13,8 @@ import isAuth from "./middleware/is-auth";
 dotenv.config();
 
 const app = express();
+
+app.use(helmet());
 
 app.use(bodyParser.json());
 
