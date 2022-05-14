@@ -1,7 +1,8 @@
 # Nudge
 
 ## Description
-A habit-building application built with the MERN stack that helps users "nudge" like-minded people in pursuing a common goal.
+
+### A habit-building application built with the MERN stack that helps users "nudge" like-minded people in pursuing a common goal.
 
 <a href="https://nudge-me.netlify.app/">Demo</a> application deployed on Netlify with the backend API deployed on Heroku.
 
