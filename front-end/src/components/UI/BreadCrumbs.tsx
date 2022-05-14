@@ -4,8 +4,6 @@ import Typography from "@mui/material/Typography";
 import { Link as RouterLink } from "react-router-dom";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
 
-import "./BreadCrumbs.css";
-
 interface Props {
   pageTitle?: string;
 }
@@ -32,9 +30,7 @@ const BreadCrumbs: React.FC<Props> = (props) => {
       separator={<NavigateNextIcon fontSize="small" />}
       aria-label="breadcrumb"
       sx={{
-        position: "fixed",
-        left: "1rem",
-        margin: 0,
+        marginLeft: "1rem",
       }}
     >
       {breadcrumbs}

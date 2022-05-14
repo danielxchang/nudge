@@ -36,16 +36,6 @@ const StickyFooter: React.FC = () => {
       }}
     >
       <Container>
-        <Typography variant="caption">
-          <Link
-            sx={{ textDecoration: "none" }}
-            color="text.secondary"
-            href="https://pngtree.com/freepng/elephant-logo-vector-monoline-art-illustration_5105835.html?sol=downref&id=bef"
-            target="_blank"
-          >
-            Illustration PNG Designed By starwash
-          </Link>
-        </Typography>
         <Copyright />
       </Container>
     </Box>

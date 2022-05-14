@@ -52,8 +52,6 @@ const FormDialog: React.FC<Props> = (props) => {
       .then((res) => res.json())
       .then((data) => {
         if (!data.ok) throw new Error(data.message);
-        console.log(data);
-
         navigate(`/habits/${data.habitId}`);
       })
       .catch((err) => alert(err.message));

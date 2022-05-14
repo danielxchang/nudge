@@ -24,7 +24,6 @@ const MyHabitsPageContent: React.FC = () => {
       .then((res) => res.json())
       .then((data) => {
         if (data.message) throw new Error(data.message);
-        console.log(data);
         setHabits(data.habits);
         setLoadedHabits(true);
       })
