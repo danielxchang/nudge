@@ -50,8 +50,9 @@ const HabitAdd: React.FC = () => {
         size="medium"
         sx={{
           backgroundColor: "#ff7f02",
-          marginTop: "2rem",
+          marginTop: "1rem",
           ":hover": { backgroundColor: "#ec5304" },
+          zIndex: 0,
         }}
         onClick={toggleFormHandler}
       >

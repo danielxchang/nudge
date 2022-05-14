@@ -1,6 +1,11 @@
+import React from "react";
 import classes from "./LoadingSpinner.module.css";
 
-const LoadingSpinner = (props) => {
+interface Props {
+  asOverlay?: boolean;
+}
+
+const LoadingSpinner: React.FC<Props> = (props) => {
   return (
     <div
       className={classes[`${props.asOverlay && "loading-spinner__overlay"}`]}

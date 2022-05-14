@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.postHortonHabit = exports.postNewHabit = exports.addHabitEntry = exports.getHabit = exports.getHabits = exports.addHabitOption = exports.getHabitOptions = void 0;
+exports.deleteHabit = exports.postHortonHabit = exports.postNewHabit = exports.addHabitEntry = exports.getHabit = exports.getHabits = exports.addHabitOption = exports.getHabitOptions = void 0;
 const axios_1 = __importDefault(require("axios"));
 const HabitOption_1 = __importDefault(require("../models/HabitOption"));
 const User_1 = __importDefault(require("../models/User"));
@@ -230,3 +230,37 @@ const postHortonHabit = (req, res, next) => __awaiter(void 0, void 0, void 0, fu
     }
 });
 exports.postHortonHabit = postHortonHabit;
+const deleteHabit = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const { habitId } = req.params;
+    try {
+        const user = yield User_1.default.findOne({ email: constants_1.HORTON_CREDENTIALS.email });
+        user.habits = user.habits.filter((habit) => habit.toString() !== habitId);
+        yield user.save();
+        const habit = yield Habit_1.default.findById(habitId);
+        const hasPartner = habit.partner;
+        const habitOption = yield HabitOption_1.default.findById(habit.habitType);
+        if (hasPartner) {
+            const partner = yield User_1.default.findById(habit.partner);
+            partner.habits = partner.habits.filter((h) => h.toString() !== habit.partnerHabit.toString());
+            yield partner.save();
+            yield Habit_1.default.findByIdAndDelete(habit.partnerHabit);
+            habitOption.matches = habitOption.matches.filter((match) => {
+                return (match.habitId.toString() !== habitId &&
+                    match.habitId.toString() !== habit.partnerHabit.toString());
+            });
+        }
+        else {
+            habitOption.remaining = habitOption.remaining.filter((match) => match.habitId.toString() !== habitId);
+        }
+        yield habitOption.save();
+        yield Habit_1.default.findByIdAndRemove(habitId);
+        res.json({ message: "Deleted successfully!" });
+    }
+    catch (err) {
+        if (!err.statusCode) {
+            err.statusCode = 500;
+        }
+        next(err);
+    }
+});
+exports.deleteHabit = deleteHabit;

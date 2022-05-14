@@ -1,50 +1,44 @@
-import React, { useContext } from "react";
-import { Link, NavLink } from "react-router-dom";
+import React, { Fragment, useState } from "react";
+import { Link } from "react-router-dom";
 
-import logo from ".//logo.png";
 import classes from "./MainNavigation.module.css";
-import AuthContext from "../../store/auth-context";
+import Backdrop from "../UI/Backdrop";
+import SideDrawer from "./SideDrawer";
+import NavLinks from "./NavLinks";
+import MainHeader from "./MainHeader";
 
 const MainNavigation: React.FC = (props) => {
-  const authCtx = useContext(AuthContext);
+  const [drawerIsOpen, setDrawerIsOpen] = useState(false);
+
+  const toggleDrawerHandler = () => {
+    setDrawerIsOpen((prevState) => !prevState);
+  };
+
   return (
-    <header>
-      <div className={classes.header}>
-        <Link to="/" className={classes.logo}>
-          <img src={logo} alt="nudge logo" />
-          nudge
-        </Link>
-        <nav className={classes.nav}>
-          <ul>
-            <li>
-              <NavLink
-                to={`/habits`}
-                className={({ isActive }) => (isActive && classes.active) || ""}
-              >
-                Me
-              </NavLink>
-            </li>
-            <li>
-              <NavLink
-                to="/world"
-                className={({ isActive }) => (isActive && classes.active) || ""}
-              >
-                World
-              </NavLink>
-            </li>
-            <li>
-              <NavLink
-                to="/"
-                className={({ isActive }) => (isActive && classes.active) || ""}
-                onClick={authCtx.logout}
-              >
-                Sign Out
-              </NavLink>
-            </li>
-          </ul>
+    <Fragment>
+      {drawerIsOpen && <Backdrop onClick={toggleDrawerHandler} />}
+      <SideDrawer show={drawerIsOpen} onClick={toggleDrawerHandler}>
+        <nav className={classes["main-navigation__drawer_nav"]}>
+          <NavLinks />
         </nav>
-      </div>
-    </header>
+      </SideDrawer>
+      <MainHeader>
+        <button
+          className={classes["main-navigation__menu-btn"]}
+          onClick={toggleDrawerHandler}
+        >
+          <span />
+          <span />
+          <span />
+        </button>
+        <h1 className={classes["main-navigation__title"]}>
+          <Link to="/">nudge</Link>
+        </h1>
+        <nav className={classes["main-navigation__header-nav"]}>
+          <NavLinks />
+        </nav>
+      </MainHeader>
+    </Fragment>
   );
 };
 

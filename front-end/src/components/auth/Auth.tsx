@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useRef, ChangeEventHandler } from "react";
 import { useNavigate } from "react-router-dom";
 
 import Button from "@mui/material/Button";
@@ -10,23 +10,35 @@ import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import ExploreIcon from "@mui/icons-material/Explore";
+import Alert from "@mui/material/Alert";
 
 import authImage from "../../static/images/elephant.jpg";
 import AuthContext from "../../store/auth-context";
+import { validateInputs } from "../../util/helpers";
 
 const theme = createTheme();
 
 const Auth = () => {
   const authCtx = useContext(AuthContext);
-  const [isLogin, setIsLogin] = useState(true);
   const navigate = useNavigate();
+
+  const emailInputRef = useRef<{ value: string }>();
+  const passwordInputRef = useRef<{ value: string }>();
+  const nameInputRef = useRef<{ value: string }>();
+
+  const [isLogin, setIsLogin] = useState(true);
+  const [validInputs, setValidInputs] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+  const [isNameError, setIsNameError] = useState(false);
+  const [isEmailError, setIsEmailError] = useState(false);
+  const [isPasswordError, setIsPasswordError] = useState(false);
 
   const submitHandler = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    const name = data.get("name");
-    const email = data.get("email");
-    const password = data.get("password");
+    let name;
+    if (!isLogin) name = nameInputRef.current?.value.trim();
+    const email = emailInputRef.current?.value.trim();
+    const password = passwordInputRef.current?.value.trim();
 
     const url = `${process.env.REACT_APP_API_URL}/api/auth/${
       isLogin ? "login" : "signup"
@@ -46,7 +58,20 @@ const Auth = () => {
     })
       .then((res) => res.json())
       .then((data) => {
-        if (!data.token) throw new Error(data.message);
+        if (!data.token) {
+          const error = new Error(data.message);
+          switch (data.field) {
+            case "name":
+              setIsNameError(true);
+              break;
+            case "email":
+              setIsEmailError(true);
+              break;
+            case "password":
+              setIsPasswordError(true);
+          }
+          throw error;
+        }
 
         const expirationTime = new Date(
           new Date().getTime() + +data.expiresIn * 1000
@@ -54,7 +79,27 @@ const Auth = () => {
         authCtx.login(data.token, expirationTime.toISOString());
         navigate(`/habits`);
       })
-      .catch((err) => alert(err.message));
+      .catch((err) => {
+        setErrorMsg(err.message);
+      });
+  };
+
+  const onChangeHandler: ChangeEventHandler = () => {
+    if (errorMsg) {
+      setErrorMsg("");
+      setIsNameError(false);
+      setIsEmailError(false);
+      setIsPasswordError(false);
+    }
+
+    const isValid = validateInputs(
+      isLogin,
+      emailInputRef.current!.value,
+      passwordInputRef.current!.value,
+      nameInputRef.current ? nameInputRef.current!.value : ""
+    );
+
+    setValidInputs(isValid);
   };
 
   const exploreHandler = () => {
@@ -76,6 +121,14 @@ const Auth = () => {
 
   const switchModeHandler = () => {
     setIsLogin((prevMode) => !prevMode);
+    const isValid = validateInputs(
+      !isLogin,
+      emailInputRef.current!.value,
+      passwordInputRef.current!.value,
+      nameInputRef.current ? nameInputRef.current!.value : ""
+    );
+
+    setValidInputs(isValid);
   };
 
   return (
@@ -121,6 +174,7 @@ const Auth = () => {
               onSubmit={submitHandler}
               sx={{ mt: 1 }}
             >
+              {errorMsg && <Alert severity="error">{errorMsg}</Alert>}
               {!isLogin && (
                 <TextField
                   margin="normal"
@@ -130,7 +184,10 @@ const Auth = () => {
                   label="Name"
                   name="name"
                   autoComplete="name"
+                  error={isNameError}
                   autoFocus
+                  inputProps={{ ref: nameInputRef }}
+                  onChange={onChangeHandler}
                 />
               )}
               <TextField
@@ -138,10 +195,14 @@ const Auth = () => {
                 required
                 fullWidth
                 id="email"
+                type="email"
                 label="Email Address"
                 name="email"
                 autoComplete="email"
+                error={isEmailError}
                 autoFocus
+                inputProps={{ ref: emailInputRef }}
+                onChange={onChangeHandler}
               />
               <TextField
                 margin="normal"
@@ -151,10 +212,14 @@ const Auth = () => {
                 label="Password"
                 type="password"
                 id="password"
+                error={isPasswordError && true}
                 autoComplete="current-password"
+                inputProps={{ ref: passwordInputRef }}
+                onChange={onChangeHandler}
               />
               <Button
                 type="submit"
+                disabled={!validInputs}
                 fullWidth
                 variant="contained"
                 sx={{

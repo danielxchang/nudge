@@ -54,11 +54,11 @@ const HabitPageContent: React.FC = () => {
 
   return (
     <Layout>
+      {habit && <BreadCrumbs pageTitle={habit.title} />}
       <Container>
         {!habit && <LoadingSpinner />}
         {habit && (
           <React.Fragment>
-            <BreadCrumbs pageTitle={habit.title} />
             <h1>{habit.title}</h1>
             <HabitTimeline
               userName={habit.user}

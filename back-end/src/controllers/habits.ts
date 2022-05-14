@@ -1,4 +1,5 @@
 import { RequestHandler } from "express";
+import mongoose from "mongoose";
 import axios from "axios";
 
 import HabitOption from "../models/HabitOption";
@@ -8,6 +9,7 @@ import {
   API_NINJAS_URL,
   EMILY_CREDENTIALS,
   HOBBY_CATEGORIES,
+  HORTON_CREDENTIALS,
 } from "../util/constants";
 import {
   CustomRequest,
@@ -282,6 +284,61 @@ export const postHortonHabit: RequestHandler = async (
     await emily.save();
     await option.save();
     return next();
+  } catch (err: any | ErrorResponse) {
+    if (!err.statusCode) {
+      err.statusCode = 500;
+    }
+    next(err);
+  }
+};
+
+export const deleteHabit: RequestHandler = async (
+  req: CustomRequest,
+  res,
+  next
+) => {
+  const { habitId } = req.params;
+
+  try {
+    const user = await User.findOne({ email: HORTON_CREDENTIALS.email });
+    user.habits = user.habits.filter(
+      (habit: mongoose.Schema.Types.ObjectId) => habit.toString() !== habitId
+    );
+    await user.save();
+
+    const habit = await Habit.findById(habitId);
+    const hasPartner = habit.partner as
+      | mongoose.Schema.Types.ObjectId
+      | undefined;
+
+    const habitOption = await HabitOption.findById(habit.habitType);
+
+    if (hasPartner) {
+      const partner = await User.findById(habit.partner);
+      partner.habits = partner.habits.filter(
+        (h: mongoose.Schema.Types.ObjectId) =>
+          h.toString() !== habit.partnerHabit.toString()
+      );
+      await partner.save();
+      await Habit.findByIdAndDelete(habit.partnerHabit);
+
+      habitOption.matches = habitOption.matches.filter(
+        (match: HabitOptionMatchObj) => {
+          return (
+            match.habitId.toString() !== habitId &&
+            match.habitId.toString() !== habit.partnerHabit.toString()
+          );
+        }
+      );
+    } else {
+      habitOption.remaining = habitOption.remaining.filter(
+        (match: HabitOptionMatchObj) => match.habitId.toString() !== habitId
+      );
+    }
+
+    await habitOption.save();
+    await Habit.findByIdAndRemove(habitId);
+    res.json({ message: "Deleted successfully!" });
   } catch (err: any | ErrorResponse) {
     if (!err.statusCode) {
       err.statusCode = 500;
