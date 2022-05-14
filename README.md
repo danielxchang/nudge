@@ -5,7 +5,7 @@
 <p>A habit-building application built with the MERN stack that helps users "nudge" like-minded people in pursuing a common goal.</p>
 
 ## Demo
-<p>Demo application deployed on Netlify with the backend API deployed on Heroku.</p>
+<p>Demo React SPA front-end deployed on Netlify with the back-end REST API deployed on Heroku.</p>
 <a href="https://nudge-me.netlify.app/">Demo</a>
 
 ## Miscellaneous
