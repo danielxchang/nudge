@@ -1,10 +1,12 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemText from "@mui/material/ListItemText";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
 import Avatar, { AvatarType } from "../UI/Avatar";
 
+import "./HabitButton.css";
 import HabitItem from "../../models/habit";
 
 interface Props {

@@ -2,7 +2,11 @@ import { Request } from "express";
 import mongoose from "mongoose";
 
 export class ErrorResponse extends Error {
-  constructor(message: string, public statusCode: number) {
+  constructor(
+    message: string,
+    public statusCode: number,
+    public field?: string
+  ) {
     super(message);
   }
 }

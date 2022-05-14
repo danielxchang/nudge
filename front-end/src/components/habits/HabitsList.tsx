@@ -3,6 +3,7 @@ import List from "@mui/material/List";
 
 import HabitButton from "./HabitButton";
 import Habit from "../../models/habit";
+import Container from "../UI/Container";
 
 interface HabitsListProps {
   habits: Habit[];
@@ -16,10 +17,10 @@ const HabitsList: React.FC<HabitsListProps> = ({ habits }) => {
   return (
     <List
       sx={{
-        width: "50%",
+        width: "60%",
         bgcolor: "background.paper",
-        maxHeight: "60vh",
         overflow: "auto",
+        maxHeight: "70%",
         margin: "auto",
       }}
     >

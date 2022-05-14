@@ -3,7 +3,8 @@ import Breadcrumbs from "@mui/material/Breadcrumbs";
 import Typography from "@mui/material/Typography";
 import { Link as RouterLink } from "react-router-dom";
 import NavigateNextIcon from "@mui/icons-material/NavigateNext";
-import { DUMMY_USER } from "../../util/dummy";
+
+import "./BreadCrumbs.css";
 
 interface Props {
   pageTitle?: string;
@@ -12,7 +13,7 @@ interface Props {
 const BreadCrumbs: React.FC<Props> = (props) => {
   const breadcrumbs = [
     <RouterLink
-      to={`/${DUMMY_USER.id}/habits`}
+      to={`/habits`}
       style={{
         color: "inherit",
         textDecoration: "none",
@@ -30,6 +31,11 @@ const BreadCrumbs: React.FC<Props> = (props) => {
     <Breadcrumbs
       separator={<NavigateNextIcon fontSize="small" />}
       aria-label="breadcrumb"
+      sx={{
+        position: "fixed",
+        left: "1rem",
+        margin: 0,
+      }}
     >
       {breadcrumbs}
     </Breadcrumbs>

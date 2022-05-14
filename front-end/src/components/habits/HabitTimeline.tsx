@@ -9,6 +9,7 @@ import TimelineDot from "@mui/lab/TimelineDot";
 import IconButton from "@mui/material/IconButton";
 import AvatarGroup from "@mui/material/AvatarGroup";
 
+import "./HabitTimeline.css";
 import Avatar, { AvatarType } from "../UI/Avatar";
 import getIcon, { StatusIcon } from "../UI/Icons";
 import Habit from "../../models/habit";

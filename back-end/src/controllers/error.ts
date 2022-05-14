@@ -7,5 +7,7 @@ export const errorHandler: ErrorRequestHandler = (
   res,
   next
 ) => {
-  res.status(500).json({ message: err.message, status: err.statusCode });
+  res
+    .status(500)
+    .json({ message: err.message, status: err.statusCode, field: err.field });
 };

@@ -4,13 +4,16 @@ import MuiContainer from "@mui/material/Container";
 
 interface Props {
   children: React.ReactNode;
+  height?: string;
 }
 
 const Container: React.FC<Props> = (props) => {
   return (
     <React.Fragment>
       <CssBaseline />
-      <MuiContainer maxWidth="sm">{props.children}</MuiContainer>
+      <MuiContainer maxWidth="sm" sx={{ height: props.height }}>
+        {props.children}
+      </MuiContainer>
     </React.Fragment>
   );
 };

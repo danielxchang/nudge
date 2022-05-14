@@ -7,8 +7,10 @@ import User from "../models/User";
 
 const router = Router();
 
+// POST /api/auth/login
 router.post("/login", login);
 
+// POST /api/auth/post
 router.post(
   "/signup",
   [
@@ -29,6 +31,7 @@ router.post(
   signup
 );
 
+// POST /api/auth/horton -> Meant for guests who explore site as Horton (simulated guest user)
 router.post("/horton", isHorton, login);
 
 export default router;

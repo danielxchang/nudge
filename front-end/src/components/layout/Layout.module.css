@@ -1,4 +1,6 @@
 .main {
-  margin: 3rem 5rem;
+  width: 100vw;
   text-align: center;
+  margin-top: 6rem;
+  height: 80vh;
 }

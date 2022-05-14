@@ -29,12 +29,12 @@ const login = (req, res, next) => __awaiter(void 0, void 0, void 0, function* ()
     try {
         const user = yield User_1.default.findOne({ email });
         if (!user) {
-            const error = new types_1.ErrorResponse("User not found!", 401);
+            const error = new types_1.ErrorResponse("User not found!", 401, "email");
             throw error;
         }
         const isMatch = yield bcryptjs_1.default.compare(password, user.password);
         if (!isMatch) {
-            const error = new types_1.ErrorResponse("Wrong password!", 401);
+            const error = new types_1.ErrorResponse("Wrong password!", 401, "password");
             throw error;
         }
         const token = createToken(user);
@@ -51,7 +51,8 @@ exports.login = login;
 const signup = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const errors = (0, express_validator_1.validationResult)(req);
     if (!errors.isEmpty()) {
-        const error = new types_1.ErrorResponse("Validation failed!", 422);
+        const { msg, param } = errors.array()[0];
+        const error = new types_1.ErrorResponse(msg, 422, param);
         return next(error);
     }
     const { name, email, password } = req.body;

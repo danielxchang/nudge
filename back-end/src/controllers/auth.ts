@@ -24,13 +24,13 @@ export const login: RequestHandler = async (req, res, next) => {
   try {
     const user = await User.findOne({ email });
     if (!user) {
-      const error = new ErrorResponse("User not found!", 401);
+      const error = new ErrorResponse("User not found!", 401, "email");
       throw error;
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      const error = new ErrorResponse("Wrong password!", 401);
+      const error = new ErrorResponse("Wrong password!", 401, "password");
       throw error;
     }
 
@@ -48,7 +48,8 @@ export const login: RequestHandler = async (req, res, next) => {
 export const signup: RequestHandler = async (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    const error = new ErrorResponse("Validation failed!", 422);
+    const { msg, param } = errors.array()[0];
+    const error = new ErrorResponse(msg, 422, param);
     return next(error);
   }
   const { name, email, password } = req.body;

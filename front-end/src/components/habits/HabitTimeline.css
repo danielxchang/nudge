@@ -1,0 +1,9 @@
+@media only screen and (max-width: 650px) {
+  .MuiList-root {
+    width: 100%;
+  }
+
+  .MuiAvatar-root {
+    display: none;
+  }
+}
