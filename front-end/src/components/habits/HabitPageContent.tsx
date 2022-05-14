@@ -14,7 +14,6 @@ const HabitPageContent: React.FC = () => {
   const navigate = useNavigate();
   const { habitId } = useParams();
   const [habit, setHabit] = useState<HabitType>();
-  console.log(habit);
 
   useEffect(() => {
     const url = `${process.env.REACT_APP_API_URL}/api/habits/${habitId}`;
@@ -44,7 +43,6 @@ const HabitPageContent: React.FC = () => {
       .then((res) => res.json())
       .then((data) => {
         if (!data.ok) throw new Error(data.message);
-        console.log(data);
         setHabit((prevHabit) => {
           return { ...prevHabit!, entries: data.entries };
         });

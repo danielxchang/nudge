@@ -3,7 +3,6 @@ import List from "@mui/material/List";
 
 import HabitButton from "./HabitButton";
 import Habit from "../../models/habit";
-import Container from "../UI/Container";
 
 interface HabitsListProps {
   habits: Habit[];
