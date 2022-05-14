@@ -29,6 +29,6 @@ mongoose_1.default
     .connect(`mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0.yfvfw.mongodb.net/${process.env.MONGO_DEFAULT_DATABASE}`)
     .then((result) => {
     app.listen(process.env.PORT || 3000);
-    console.log("CONNECTED!");
+    console.log("CONNECTED!!");
 })
     .catch((err) => console.log(err));
