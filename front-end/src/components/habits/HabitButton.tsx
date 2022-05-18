@@ -26,6 +26,7 @@ const Habit: React.FC<Props> = (props) => {
       <ListItemAvatar>
         <Avatar type={AvatarType.initials} name={props.user} person="user" />
       </ListItemAvatar>
+      <ListItemText primary={props.habit.title} sx={{ textAlign: "center" }} />
       {props.habit.partner && (
         <ListItemAvatar>
           <Avatar
