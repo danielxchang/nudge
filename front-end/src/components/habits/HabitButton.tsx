@@ -26,17 +26,6 @@ const Habit: React.FC<Props> = (props) => {
       <ListItemAvatar>
         <Avatar type={AvatarType.initials} name={props.user} person="user" />
       </ListItemAvatar>
-      <ListItemText
-        primary={props.habit.title}
-        secondary={
-          props.habit.partner
-            ? `Last entry: ${new Date(
-                props.habit.startDate!
-              ).toLocaleDateString("en-US")}`
-            : "Pairing in Progress"
-        }
-        sx={{ textAlign: "center" }}
-      />
       {props.habit.partner && (
         <ListItemAvatar>
           <Avatar
